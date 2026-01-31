@@ -196,6 +196,7 @@ def generate_placeholder_properties(area: str, count: int = 3) -> list[dict]:
     street_names = ["High Street", "Church Road", "Station Road", "Victoria Road", 
                     "Park Avenue", "Queens Road", "Kings Lane", "Mill Lane"]
     
+    # son :sob:
     properties = []
     for i in range(count):
         properties.append({
@@ -283,4 +284,3 @@ if __name__ == "__main__":
         print(f"   - {p['address']}")
     
     print("\nBackend tests complete!")
-

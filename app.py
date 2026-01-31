@@ -136,9 +136,9 @@ def display_property_grid(properties: list, columns: int = 4):
                     display_property_card(properties[i + j])
 
 
-# =============================================================================
+
 # Sidebar: Search Panel
-# =============================================================================
+
 with st.sidebar:
     st.header("🔍 Search")
     
@@ -154,18 +154,16 @@ with st.sidebar:
     submitted = st.button("Search", use_container_width=True, type="primary")
 
 
-# =============================================================================
+
 # Session State
-# =============================================================================
 if "results" not in st.session_state:
     st.session_state.results = []
 if "last_search" not in st.session_state:
     st.session_state.last_search = {"area": None, "query": None}
 
 
-# =============================================================================
+
 # Search Trigger
-# =============================================================================
 if submitted:
     with st.spinner("Searching properties..."):
         # Call backend search function
@@ -174,9 +172,7 @@ if submitted:
         st.session_state.last_search = {"area": area, "query": query}
 
 
-# =============================================================================
 # Main Content: Display Results
-# =============================================================================
 last = st.session_state.last_search
 
 # Initialize view state
@@ -187,7 +183,7 @@ if "current_view" not in st.session_state:
 tab_col1, tab_col2 = st.columns(2)
 
 with tab_col1:
-    if st.button("🏠 Individual Properties", use_container_width=True, 
+    if st.button("Individual Properties", use_container_width=True, 
                  type="primary" if st.session_state.current_view == "properties" else "secondary"):
         st.session_state.current_view = "properties"
         st.rerun()
@@ -200,15 +196,12 @@ with tab_col2:
 
 st.divider()
 
-# =============================================================================
 # Show content based on selected view
-# =============================================================================
 
 if st.session_state.current_view == "properties":
-    # =============================================================================
+
     # Individual Properties View - Grid Layout (3 columns)
-    # =============================================================================
-    st.subheader("🏠 Individual Properties")
+    st.subheader("Individual Properties")
     
     if last["area"] is None:
         st.info("👋 Select an area to see property listings")
@@ -265,13 +258,11 @@ if st.session_state.current_view == "properties":
             st.warning("No properties found. Try a different search.")
 
 elif st.session_state.current_view == "heatmap":
-    # =============================================================================
     # Heatmap View
-    # =============================================================================
-    st.subheader("🗺️ Heatmap View")
+    st.subheader("Heatmap View")
     
     if last["area"] is None:
-        st.info("👋 Search for properties to see the heatmap here")
+        st.info("Search for properties to see the heatmap here")
     else:
         st.caption(f"Showing results for: **{last['area']}** | Query: *{last['query'] or 'All'}*")
         
@@ -298,7 +289,7 @@ elif st.session_state.current_view == "heatmap":
                     font-weight: bold;
                     flex-direction: column;
                 ">
-                    <span>🗺️ Heatmap View</span>
+                    <span>Heatmap View</span>
                     <span style="font-size: 14px; font-weight: normal; margin-top: 10px;">Click to explore (coming soon)</span>
                 </div>
                 """, unsafe_allow_html=True)
