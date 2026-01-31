@@ -16,7 +16,7 @@ st.title("Property / Area Search")
 
 
 UK_AREAS = [
-    "Anywhere in the UK","London", "Manchester", "Birmingham", "Leeds", "Glasgow", "Edinburgh",
+    "Anywhere in the","London", "Manchester", "Birmingham", "Leeds", "Glasgow", "Edinburgh",
     "Bristol", "Liverpool", "Sheffield", "Newcastle upon Tyne", "Nottingham",
     
 ]
