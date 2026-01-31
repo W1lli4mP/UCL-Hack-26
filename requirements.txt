@@ -6,3 +6,4 @@ scikit-learn
 seaborn
 requests
 flask
+plotly
