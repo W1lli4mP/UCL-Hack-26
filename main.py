@@ -10,6 +10,7 @@ import seaborn as sns
 from io import BytesIO
 import base64
 import requests
+from catboost import CatBoostClassifier #catboost
 
 # Set up API
 URL = "https://api.scansan.com/v1/area_codes/search"
