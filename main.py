@@ -1,4 +1,4 @@
-import streamlit as st
+import app as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -32,5 +32,3 @@ except requests.exceptions.RequestException as e:
     print(f"Error: {e}")
 
 ### MAIN CODE
-
-print("hello world!")

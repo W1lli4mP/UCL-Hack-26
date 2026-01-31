@@ -5,3 +5,5 @@ matplotlib
 scikit-learn
 seaborn
 requests
+base64
+requests

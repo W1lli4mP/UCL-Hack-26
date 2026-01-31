@@ -1,4 +1,5 @@
-import app as st
+import streamlit as st
+# import app as st - do not include
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,19 +12,66 @@ from io import BytesIO
 import base64
 import requests
 
-from main import URL, API_KEY
+UK_AREAS = [
+    "London", "Manchester", "Birmingham", "Leeds", "Glasgow", "Edinburgh",
+    "Bristol", "Liverpool", "Sheffield", "Newcastle upon Tyne", "Nottingham"
+]
 
-st.title('Welcome!')
-st.markdown("")
+def mock_search(area: str, query: str):
+    """
+    Replace this with your real backend/API call.
+    Must return a list (or dataframe) of results.
+    """
+    # Example fake results
+    q = query.strip().lower()
+    base = [
+        {"address": "10 Example Rd", "area": area, "score": 72},
+        {"address": "22 Demo St", "area": area, "score": 65},
+        {"address": "7 Test Ave", "area": area, "score": 81},
+    ]
+    if not q:
+        return base
+    return [r for r in base if q in r["address"].lower()]
 
-# When you click on the individual properties, it leads to:
-# house image, sustainability, validation.
+st.set_page_config(page_title="UK Area Search", layout="wide")
+st.title("Property / Area Search")
 
-def house_image():
-    #
+# --- Sidebar search panel ---
+with st.sidebar:
+    st.header("Search")
+    area = st.selectbox("Choose an area", UK_AREAS, index=0)
+    query = st.text_input("Search", placeholder="e.g. postcode, street, ward...")
+    submitted = st.button("Search", use_container_width=True)
 
-def sustainability():
-    #
+# --- Session state to keep results ---
+if "results" not in st.session_state:
+    st.session_state.results = []
+if "last_search" not in st.session_state:
+    st.session_state.last_search = {"area": None, "query": None}
 
-def validation():
-    #
+# --- Trigger search ---
+if submitted:
+    results = mock_search(area, query)
+    st.session_state.results = results
+    st.session_state.last_search = {"area": area, "query": query}
+
+# --- Main content area: show results ---
+last = st.session_state.last_search
+if last["area"] is None:
+    st.info("Use the sidebar to pick an area and search.")
+else:
+    st.subheader(f"Results for {last['area']} — query: {last['query']!r}")
+
+    results = st.session_state.results
+    if not results:
+        st.warning("No results found.")
+    else:
+        # Simple card-style display
+        for r in results:
+            with st.container(border=True):
+                st.write(f"**{r['address']}**")
+                st.caption(f"Area: {r['area']} | Sustainability score: {r['score']}")
+
+        # If you want a dataframe instead:
+        # import pandas as pd
+        # st.dataframe(pd.DataFrame(results), use_container_width=True)
