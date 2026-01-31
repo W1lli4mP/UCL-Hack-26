@@ -1,76 +1,119 @@
+"""
+Frontend module for UK Property Search application.
+Streamlit UI that imports backend functions from main.py.
+"""
+
 import streamlit as st
-# import app as st - do not include
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.datasets import load_iris 
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, confusion_matrix
-import seaborn as sns
-from io import BytesIO
-import base64
-import requests
-from server import construct_http_packet
-from UKAreas import UK_AREAS
 
-st.title("Property / Area Search")
+# Import backend functions from main.py
+from main import (
+    search_properties,
+    get_uk_areas,
+    get_sustainability_label,
+    get_sustainability_color,
+)
 
-UK_AREAS = UK_AREAS # list of UK areas
+# =============================================================================
+# Page Configuration (must be first Streamlit command)
+# =============================================================================
+st.set_page_config(page_title="UK Property Search", layout="wide")
 
+# =============================================================================
+# App Title
+# =============================================================================
+st.title("🏠 Property / Area Search")
 
-def mock_search(area: str, query: str):
-    """
-    Restreaplace this with your real backend/API call.
-    Must return a list (or dataframe) of results.
-    """
-    # example results
-    q = query.strip().lower()
-    base = [
-        {"address":"yes"},
-    ]
-    if not q:
-        return base
-    return [r for r in base if q in r["address"].lower()]
-
-st.set_page_config(page_title="UK Area Search", layout="wide")
-
-# --- Sidebar search panel ---
+# =============================================================================
+# Sidebar: Search Panel
+# =============================================================================
 with st.sidebar:
-    st.header("Search")
-    area = st.selectbox("Choose an area", UK_AREAS, index=0)
-    query = st.text_input("Search", placeholder="e.g. postcode, street, ward...")
-    submitted = st.button("Search", use_container_width=True)
+    st.header("🔍 Search")
+    
+    # Get areas from backend
+    uk_areas = get_uk_areas()
+    
+    area = st.selectbox("Choose an area", uk_areas, index=0)
+    query = st.text_input(
+        "Search", 
+        placeholder="e.g. postcode, street, ward...",
+        help="Enter a postcode, street name, or leave empty to see all"
+    )
+    submitted = st.button("Search", use_container_width=True, type="primary")
 
-# --- Session state to keep results ---
+# =============================================================================
+# Session State
+# =============================================================================
 if "results" not in st.session_state:
     st.session_state.results = []
 if "last_search" not in st.session_state:
     st.session_state.last_search = {"area": None, "query": None}
 
-# --- Trigger search ---
+# =============================================================================
+# Trigger Search (calls backend)
+# =============================================================================
 if submitted:
-    results = mock_search(area, query)
-    st.session_state.results = results
-    st.session_state.last_search = {"area": area, "query": query}
+    with st.spinner("Searching properties..."):
+        # Call backend search function
+        results = search_properties(area, query)
+        st.session_state.results = results
+        st.session_state.last_search = {"area": area, "query": query}
 
-# --- Main content area: show results ---
+# =============================================================================
+# Display Results
+# =============================================================================
 last = st.session_state.last_search
+
 if last["area"] is None:
-    st.info("Select an area, and a postcode/street/ward to search within that area. when you select this, make sure it is correct e.g, SS0 0BW")
+    st.info("👋 Select an area and optionally enter a postcode/street to search. Example: SW1A 1AA")
 else:
-    st.subheader(f"Results for {last['area']} — query: {last['query']!r}")
+    st.subheader(f"📍 Results for {last['area']} — query: {last['query']!r}")
 
     results = st.session_state.results
+    
     if not results:
-        st.warning("No results found.")
+        st.warning("No results found. Try a different search.")
     else:
-        # Simple card-style display
+        st.success(f"Found {len(results)} properties")
+        
+        # Display property cards
         for r in results:
             with st.container(border=True):
-                st.write(f"**{r['address']}**")
-                st.caption(f"Area: {r['area']} | Sustainability score: {r['score']}")
-
-        # If you want a dataframe instead:
-        # import pandas as pd
-        # st.dataframe(pd.DataFrame(results), use_container_width=True)
+                col1, col2 = st.columns([3, 1])
+                
+                with col1:
+                    st.write(f"**{r['address']}**")
+                    st.caption(f"📍 Area: {r['area']}")
+                    if "price" in r:
+                        st.caption(f"💰 Price: £{r['price']:,}")
+                
+                with col2:
+                    score = r.get("score", 0)
+                    label = get_sustainability_label(score)
+                    color = get_sustainability_color(score)
+                    
+                    st.markdown(
+                        f"<div style='text-align: center; padding: 10px; "
+                        f"background-color: {color}22; border-radius: 8px; "
+                        f"border: 2px solid {color};'>"
+                        f"<span style='font-size: 24px; font-weight: bold; color: {color};'>{score}%</span><br>"
+                        f"<span style='color: {color};'>{label}</span>"
+                        f"</div>",
+                        unsafe_allow_html=True
+                    )
+        
+        # Summary stats
+        if len(results) > 1:
+            st.divider()
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                avg_score = sum(r.get("score", 0) for r in results) / len(results)
+                st.metric("Avg Sustainability", f"{avg_score:.1f}%")
+            
+            with col2:
+                if all("price" in r for r in results):
+                    avg_price = sum(r["price"] for r in results) / len(results)
+                    st.metric("Avg Price", f"£{avg_price:,.0f}")
+            
+            with col3:
+                st.metric("Properties Found", len(results))
