@@ -10,7 +10,6 @@ import seaborn as sns
 from io import BytesIO
 import base64
 import requests
-from catboost import CatBoostClassifier #catboost
 
 # Set up API
 URL = "https://api.scansan.com/v1/area_codes/search"
@@ -33,3 +32,7 @@ except requests.exceptions.RequestException as e:
     print(f"Error: {e}")
 
 ### MAIN CODE
+<<<<<<< HEAD
+=======
+
+>>>>>>> ab3e4789 (Add server)
