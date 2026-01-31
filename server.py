@@ -483,7 +483,7 @@ def test():
     invalid_inputs = []
 
     for area in UK_AREAS:
-        response = construct_http_packet(area_name=area)
+        response = get_search(area_name=area)
         if (response is None):
             invalid += 1
             invalid_inputs.append(area)
