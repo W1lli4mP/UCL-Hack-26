@@ -32,6 +32,8 @@ def get_property_type (postcode, address):
 def get_habitable_rooms (postcode, address):
     URL = "https://api.scansan.com/v1/area_codes/" + postcode + "/sale/listings"
     data = rq.get(URL, headers={"X-Auth-Token": AUTH_TOKEN}).json () ["data"] ["sale_listings"]
+    if data is None:
+        return None
     for p in data:
         test_address = p ["street_address"]
         bedrooms = p ["bedrooms"]
@@ -43,6 +45,8 @@ def get_habitable_rooms (postcode, address):
 def get_floor_area (postcode, address):
     URL = "https://api.scansan.com/v1/area_codes/" + postcode + "/sale/listings"
     data = rq.get(URL, headers={"X-Auth-Token": AUTH_TOKEN}).json () ["data"] ["sale_listings"]
+    if data is None:
+        return None
     for p in data:
         test_address = p ["street_address"]
         floor_area = p ["property_size"]
@@ -65,6 +69,8 @@ def get_epc_values (postcode, address):
     URL = "https://api.scansan.com/v1/postcode/" + postcode + "/energy/performance"
     data = rq.get(URL, headers={"X-Auth-Token": AUTH_TOKEN}).json () ["data"]
     epc_values = {}
+    if data is None:
+        return None
     for p in data:
         test_address = p ["street_address"]
         if test_address == address:
@@ -89,6 +95,8 @@ epc_desc_key = {
 def get_desc_df (postcode, address):
     URL = "https://api.scansan.com/v1/postcode/" + postcode + "/energy/performance"
     data = rq.get(URL, headers={"X-Auth-Token": AUTH_TOKEN}).json () ["data"]
+    if data is None:
+        return None
     for p in data:
         test_address = p ["street_address"]
         if test_address == address:
@@ -224,5 +232,3 @@ def translator (postcode, address):
         "MAINHEAT_ENERGY_EFF": desc_values ["MAINHEAT_ENERGY_EFF"]
     }
 
-
-    
