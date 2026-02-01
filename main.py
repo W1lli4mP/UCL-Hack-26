@@ -17,10 +17,7 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
-
-# =============================================================================
-# API Functions - Using server.py helpers
-# =============================================================================
+# API, using server.py helpers (ty william)
 def fetch_area_data(area_name: str = None, gbr_district: str = None, gbr_street: str = None) -> dict | None:
     """
     Fetch data from the ScanSan API using server.py helper.

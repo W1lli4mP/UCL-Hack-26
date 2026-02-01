@@ -1,31 +1,15 @@
-"""
-Frontend module for UK Property Search application.
-Streamlit UI that imports backend functions from main.py.
-"""
-
 import streamlit as st
-
-# Import backend functions from main.py
-from main import (
-    search_properties, 
-    get_uk_areas, 
-    get_street_view_image_url, 
-    is_full_postcode,
-    sort_properties,
-    validate_search_input
-)
+from main import (search_properties, get_uk_areas, get_street_view_image_url, is_full_postcode, sort_properties, validate_search_input)
 
 st.set_page_config(page_title="UK Property Search", layout="wide")
 
-st.title("Property / Area Search")
+st.title("UK Property / Area Search")
 
 
-# Sidebar: Search Panel
-
+# search sidebar
 with st.sidebar:
     st.header("Search")
-    
-    # Get areas from backend
+
     uk_areas = get_uk_areas()
     
     area = st.selectbox("Choose an area", uk_areas, index=0)
@@ -35,8 +19,8 @@ with st.sidebar:
         help="Enter a place/area name. For street search, use the fields below."
     )
     
-    # Advanced search: Postcode District + Street
-    with st.expander("Advanced: Search by Postcode District + Street"):
+    # postcode district + street inputs = (area_name) OR (gbr_district AND gbr_street)
+    with st.expander("Search by Postcode District + Street"):
         st.caption("To search by street, provide BOTH the postcode district AND street name.")
         col_district, col_street = st.columns(2)
         with col_district:
@@ -56,24 +40,21 @@ with st.sidebar:
 
 
 
-# Session State
+# session state
 if "results" not in st.session_state:
     st.session_state.results = []
 if "last_search" not in st.session_state:
     st.session_state.last_search = {"area": None, "query": None}
 
 
-
-# Search Trigger
+# search submissions
 if submitted:
-    # Validate inputs using backend function
-    error_message = validate_search_input(query, postcode_district, street_name)
+    error_message = validate_search_input(query, postcode_district, street_name) # input validation
     
     if error_message:
         st.error(error_message)
     else:
-        with st.spinner("Searching properties..."):
-            # Call backend search function with appropriate parameters
+        with st.spinner("Searching properties..."): 
             results = search_properties(
                 area=area, 
                 query=query,
@@ -83,24 +64,20 @@ if submitted:
             st.session_state.results = results
             st.session_state.last_search = {"area": area, "query": query or f"{postcode_district} {street_name}".strip()}
 
+last = st.session_state.last_search # display results
 
-# Main Content: Display Results
-last = st.session_state.last_search
+if "current_view" not in st.session_state: # initialise view
+    st.session_state.current_view = "properties"  # default view
 
-# Initialize view state
-if "current_view" not in st.session_state:
-    st.session_state.current_view = "properties"  # Default to properties view
+tab_col1, tab_col2 = st.columns(2) # navigation tabs
 
-# Navigation tabs (clickable links)
-tab_col1, tab_col2 = st.columns(2)
-
-with tab_col1:
+with tab_col1: # individual properties
     if st.button("Individual Properties", use_container_width=True, 
                  type="primary" if st.session_state.current_view == "properties" else "secondary"):
         st.session_state.current_view = "properties"
         st.rerun()
 
-with tab_col2:
+with tab_col2: # heatmap (might get rid of it)
     if st.button("Heatmap View", use_container_width=True,
                  type="primary" if st.session_state.current_view == "heatmap" else "secondary"):
         st.session_state.current_view = "heatmap"
@@ -108,11 +85,9 @@ with tab_col2:
 
 st.divider()
 
-# Show content based on selected view
-
 if st.session_state.current_view == "properties":
 
-    # Individual Properties View - Grid Layout (3 columns)
+    # indiv prop grid view - 3x3
     st.subheader("Individual Properties")
     
     if last["area"] is None:
@@ -120,7 +95,6 @@ if st.session_state.current_view == "properties":
     else:
         results = st.session_state.results
         if results:
-            # Sorting options
             sort_col1, sort_col2 = st.columns([3, 1])
             with sort_col1:
                 st.success(f"Found {len(results)} properties in **{last['area']}**")
@@ -136,11 +110,10 @@ if st.session_state.current_view == "properties":
                     ],
                     label_visibility="collapsed"
                 )
-            
-            # Sort results based on selection (using backend function)
+
             sorted_results = sort_properties(results, sort_option)
             
-            # Display properties in a 3-column grid
+            # display properties in a 3-column grid
             columns_per_row = 3
             for row_start in range(0, len(sorted_results), columns_per_row):
                 cols = st.columns(columns_per_row)
@@ -155,18 +128,18 @@ if st.session_state.current_view == "properties":
                         
                         with col:
                             with st.container(border=True):
-                                # House Image
+                                # house img (may remove)
                                 image_url = prop.get("image_url")
                                 if not image_url:
                                     image_url = get_street_view_image_url(address, postcode)
                                 st.image(image_url, use_container_width=True)
                                 
-                                # Address
+                                # address
                                 st.markdown(f"**{address}**")
                                 if postcode:
                                     st.caption(postcode)
                                 
-                                # Price information
+                                # price info
                                 price_col1, price_col2 = st.columns(2)
                                 with price_col1:
                                     st.caption("Current")
@@ -188,7 +161,6 @@ if st.session_state.current_view == "properties":
             st.warning("No properties found. Try a different search.")
 
 elif st.session_state.current_view == "heatmap":
-    # Heatmap View
     st.subheader("Heatmap View")
     
     if last["area"] is None:
@@ -201,10 +173,10 @@ elif st.session_state.current_view == "heatmap":
         if results:
             st.success(f"Found {len(results)} properties")
             
-            # Placeholder for heatmap - link to be added later
+            # heatmap placeholder for later (may remove due to little time)
             st.info("Heatmap visualization coming soon...")
             
-            # Placeholder container for future heatmap
+            # container for future heatmap
             with st.container(border=True):
                 st.markdown("""
                 <div style="
@@ -223,9 +195,8 @@ elif st.session_state.current_view == "heatmap":
                     <span style="font-size: 14px; font-weight: normal; margin-top: 10px;">Click to explore (coming soon)</span>
                 </div>
                 """, unsafe_allow_html=True)
-                
-                # Button placeholder for future heatmap page link
+            
                 st.button("Open Full Heatmap", use_container_width=True, disabled=True,
-                         help="Heatmap page coming soon")
+                         help="Heatmap page coming soon") # placeholder for page link
         else:
             st.warning("No properties found. Try a different search.")
