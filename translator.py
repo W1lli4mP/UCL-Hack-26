@@ -1,8 +1,6 @@
 import pandas as pd
 import requests as rq
 
-# Translates values from API into values accepted by ML model
-
 AUTH_TOKEN = "370b0b6f-3f09-4807-b7fe-270a4e5ba2c2"
 
 # HOUSE MAIN FEATURES:
@@ -105,11 +103,7 @@ def get_desc_df (postcode, address):
                 for key, value in epc_desc_key.items()
             }])
 
-
-# Values are fed into a pandas dataframe df.
-
 # Key word identifiers for descriptions - descriptions have more complicated values and are broken down with key word analysis
-# Key word identifier
 def sort_description (df, old_column_name, new_column_name, key):
     df[new_column_name] = pd.Series(pd.NA, index=df.index, dtype="string")
     for keyword in key:
@@ -131,7 +125,7 @@ def sort_descriptions (df):
         "uninsulated|no insulation|limited": "N"
     })
 
-    # Sort WINDOWS_DESCRIPTION
+    # WINDOWS_DESCRIPTION sorted
     values ["WINDOWS_TYPE"] = sort_description (df, "WINDOWS_DESCRIPTION", "WINDOWS_TYPE", {
         "single": "single",
         "double": "double",
@@ -146,7 +140,7 @@ def sort_descriptions (df):
         "some|partial": "partial"
     })
 
-    # Sort WALLS_DESCRIPTION
+    # WALLS_DESCRIPTION
     values ["WALLS_TYPE"] = sort_description (df, "WALLS_DESCRIPTION", "WALLS_TYPE", {
         "granite or whin": "granite or whinstone",
         "solid brick": "solid brick",
@@ -169,7 +163,7 @@ def sort_descriptions (df):
         "no insulation": "no insulation"
     })
 
-    # Sort ROOF_DESCRIPTION
+    # ROOF_DESCRIPTION
     values ["WALLS_CAVITY"] = sort_description (df, "ROOF_DESCRIPTION", "ROOF_TYPE", {
         "pitched": "pitched",
         "flat": "flat",
@@ -184,7 +178,7 @@ def sort_descriptions (df):
         "no insulation": "no insulation"
     })
 
-    # Sort MAINHEAT_DESCRIPTION
+    # MAINHEAT_DESCRIPTION
     values ["MAINHEAT_TYPE"] = sort_description (df, "MAINHEAT_DESCRIPTION", "MAINHEAT_TYPE",{
         "room heaters|electric heaters|no System": "room heaters",
         "electric ceiling": "electric ceiling",

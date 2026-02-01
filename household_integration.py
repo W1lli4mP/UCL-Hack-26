@@ -86,7 +86,7 @@ def render_household_details_view(property_data):
         st.metric("Future Price (Predicted)", f"£{property_data.get('future_price', 'N/A'):,.0f}" if property_data.get('future_price') else "TBD")
     
     # Price history placeholder
-    st.subheader("📊 Price History & Forecast")
+    st.subheader(" Price History & Forecast")
     st.info("Price history chart will be displayed here")
     # TODO: Call display_price_forecast_from_dataframes() with historical, forecast, and market DataFrames
     
@@ -100,7 +100,7 @@ def render_household_details_view(property_data):
         st.warning("Sustainability data not available for this property")
     
     # Additional information
-    st.subheader("ℹ️ Additional Information")
+    st.subheader("ℹ Additional Information")
     info_col1, info_col2 = st.columns(2)
     with info_col1:
         st.write(f"**Last Sold Date:** {property_data.get('last_sold_date', 'N/A')}")
@@ -110,7 +110,7 @@ def render_household_details_view(property_data):
     st.divider()
     
     # Save to favorites button
-    st.button("❤️ Save to Favorites", use_container_width=True)
+    st.button(" Save to Favorites", use_container_width=True)
 
 
 def initialise_household_session_state():

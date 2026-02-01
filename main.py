@@ -1,8 +1,3 @@
-"""
-Backend module for UK Property Search application.
-Contains API calls, data processing, and search logic.
-"""
-
 import re # regular expressions
 from scansan_client import get_search, get_summary, get_sale_history, get_current_valuations, get_historical_valuations
 from config import API_KEY, HEADERS, UK_AREAS
@@ -295,7 +290,7 @@ def sort_properties(properties: list, sort_option: str) -> list:
     sorted_results = properties.copy()
     
     if sort_option == "Default":
-        # In default view, show properties with current price first, N/A at the bottom
+        # show properties with current price first, N/A at the bottom
         sorted_results = sorted(properties, key=lambda x: (x.get("current_price") is None, 0))
     elif sort_option == "Current Price: Low to High":
         sorted_results = sorted(properties, key=lambda x: x.get("current_price") or float('inf'))
@@ -320,20 +315,18 @@ def validate_search_input(query: str, postcode_district: str, street_name: str) 
     Returns:
         Error message string if validation fails, None if valid
     """
-    # Check if user entered a full postcode in query field
     if query and is_full_postcode(query):
         return ("Full postcodes (e.g., 'SS0 0BW', 'NG8 1BB') are not supported.\n\n"
                 "Please use either:\n"
                 "• Area name (e.g., 'Brixton', 'Aberdeen')\n"
                 "• Postcode District + Street (e.g., 'SW1A' + 'Downing Street')")
     
-    # Check if only one of district/street is provided (need both)
     if (postcode_district and not street_name) or (street_name and not postcode_district):
         return "To search by street, you must provide BOTH the postcode district AND street name."
     
     return None
 
-# DEBUG
+# debugging testing
 if __name__ == "__main__":
     # function testing
     print("Testing backend functions...")
