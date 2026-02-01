@@ -492,13 +492,52 @@ def test():
     print("TESTING DONE")
     print(f"INVALID COUNT: {invalid}, INVALID INPUTS: {invalid_inputs}")
 
-data = get_search(area_name="Stoke-on-Trent")
+def get_floor_area(area_code_postal):
+    url = "https://api.scansan.com/v1/postcode/{area_code_postal}/energy/performance"
+    params = {"area_code_postal": area_code_postal}
+    response = rq.get(url=url, params=params, headers=HEADERS)
+    # error checking maybe
+    if (response is None):
+        return None
+    data = response.json()
+    print(data)
+    # current_emissions / current_emissions_per_floor_area
+    current_emissions = data
+    print(current_emissions)
 
-if (data is None):
-    print("FAILED!")
-else:
-    # serialise into json file
+def get_valuation_frame(area_code_postal=None, area_code=None):
+    data = get_current_valuations(area_code_postal=area_code_postal, area_code=area_code)
+    if (data is None):
+        return None
 
+    a = []
+    b = []
+
+    d = data["data"]
+    for p in d:
+        a.append(p["last_sold_date"])
+
+    for oo in d:
+        b.append(oo["last_sold_price"])
+
+    j = []
+
+    for i in range(len(d)):
+        if (a[i] is not None and b[i] is not None):
+            j.append({"date": a[i], "price": b[i]})
+
+    return pd.DataFrame(j)
+
+get_valuation_frame(area_code_postal="NW1 0BH")
+
+
+
+
+
+# if (data is None):
+#     print("FAILED!")
+# else:
+#     print(data)
 
 # With error handling
 # try:
@@ -509,5 +548,4 @@ else:
 
 if __name__ == "main":
     app.run(host=HOST, port=PORT, debug=True)
-
 
