@@ -88,7 +88,11 @@ def handle_search_submission(submitted, area, query, postcode_district, street_n
                     st.session_state.detected_area = detected
                     st.session_state.last_search = {"area": detected, "query": query or f"{postcode_district} {street_name}".strip()}
                 else:
+                    st.session_state.detected_area = None
                     st.session_state.last_search = {"area": area, "query": query or f"{postcode_district} {street_name}".strip()}
+                
+                # Rerun to update the dropdown with the detected area
+                st.rerun()
 
 
 def render_properties_view(last):
