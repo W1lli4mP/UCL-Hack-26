@@ -401,6 +401,52 @@ def validate_search_input(query: str, postcode_district: str, street_name: str) 
     
     return None
 
+
+def get_detected_area_from_properties(properties: list) -> str | None:
+    """
+    Extract the most common area from a list of properties.
+    
+    Parameters:
+        properties: List of property dictionaries
+    
+    Returns:
+        The detected area name, or None if not found
+    """
+    if not properties:
+        return None
+    
+    # Count area occurrences
+    area_counts = {}
+    for prop in properties:
+        area = prop.get("area")
+        if area:
+            area_counts[area] = area_counts.get(area, 0) + 1
+    
+    if not area_counts:
+        return None
+    
+    # Return the most common area
+    return max(area_counts, key=area_counts.get)
+
+
+def get_dynamic_uk_areas(detected_area: str = None) -> list[str]:
+    """
+    Get the list of UK areas, optionally adding a detected area if not present.
+    
+    Parameters:
+        detected_area: An area detected from search results to add if missing
+    
+    Returns:
+        List of UK area names (sorted, with detected area included if new)
+    """
+    areas = UK_AREAS.copy()
+    
+    if detected_area and detected_area not in areas:
+        areas.append(detected_area)
+        areas.sort()
+    
+    return areas
+
 # debugging testing
 if __name__ == "__main__":
     # function testing

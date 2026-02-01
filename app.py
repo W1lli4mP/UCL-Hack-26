@@ -1,5 +1,5 @@
 import streamlit as st
-from main import search_properties, get_uk_areas, is_full_postcode, sort_properties, validate_search_input
+from main import search_properties, get_uk_areas, is_full_postcode, sort_properties, validate_search_input, get_detected_area_from_properties, get_dynamic_uk_areas
 from household_integration import render_household_details_view, initialise_household_session_state, has_selected_property
 
 st.set_page_config(page_title="UK Property Search", layout="wide")
@@ -12,33 +12,45 @@ def render_sidebar_search():
     """Render search controls in sidebar and return search parameters."""
     with st.sidebar:
         st.header("Search")
-
-        uk_areas = get_uk_areas()
         
-        area = st.selectbox("Choose an area", uk_areas, index=0)
-        query = st.text_input(
-            "Search", 
-            placeholder="Street name here...",
-            help="Enter a place/area name. For street search, use the fields below."
-        )
+        # Get dynamic areas list (includes any detected areas from previous searches)
+        detected_area = st.session_state.get("detected_area")
+        uk_areas = get_dynamic_uk_areas(detected_area)
         
-        with st.expander("Search by Postcode District + Street"):
-            st.caption("To search by street, provide BOTH the postcode district AND street name.")
-            col_district, col_street = st.columns(2)
-            with col_district:
-                postcode_district = st.text_input(
-                    "Postcode District",
-                    placeholder="e.g. SW1A, NG8, SS0",
-                    help="The first part of a postcode (before the space)"
-                )
-            with col_street:
-                street_name = st.text_input(
-                    "Street Name",
-                    placeholder="e.g. Downing Street, High Street",
-                    help="Street name within the postcode district"
-                )
+        # Determine the index for the dropdown
+        # If we have a detected area from results, select it
+        default_index = 0
+        if detected_area and detected_area in uk_areas:
+            default_index = uk_areas.index(detected_area)
+        elif st.session_state.last_search.get("area") in uk_areas:
+            default_index = uk_areas.index(st.session_state.last_search["area"])
         
-        submitted = st.button("Search", use_container_width=True, type="primary")
+        # Use a form so Enter key triggers submission
+        with st.form(key="search_form"):
+            area = st.selectbox("Choose an area", uk_areas, index=default_index)
+            query = st.text_input(
+                "Search", 
+                placeholder="Street name here...",
+                help="Enter a place/area name. For street search, use the fields below."
+            )
+            
+            with st.expander("Search by Postcode District + Street"):
+                st.caption("To search by street, provide BOTH the postcode district AND street name.")
+                col_district, col_street = st.columns(2)
+                with col_district:
+                    postcode_district = st.text_input(
+                        "Postcode District",
+                        placeholder="e.g. SW1A, NG8, SS0",
+                        help="The first part of a postcode (before the space)"
+                    )
+                with col_street:
+                    street_name = st.text_input(
+                        "Street Name",
+                        placeholder="e.g. Downing Street, High Street",
+                        help="Street name within the postcode district"
+                    )
+            
+            submitted = st.form_submit_button("Search", use_container_width=True, type="primary")
     
     return area, query, postcode_district, street_name, submitted
 
@@ -52,6 +64,8 @@ def initialise_session_state():
         st.session_state.last_search = {"area": None, "query": None}
     if "current_view" not in st.session_state:
         st.session_state.current_view = "properties"
+    if "detected_area" not in st.session_state:
+        st.session_state.detected_area = None
     # Initialize household session state
     initialise_household_session_state()
 
@@ -73,7 +87,14 @@ def handle_search_submission(submitted, area, query, postcode_district, street_n
                     street=street_name.strip() if street_name else ""
                 )
                 st.session_state.results = results
-                st.session_state.last_search = {"area": area, "query": query or f"{postcode_district} {street_name}".strip()}
+                
+                # Detect the actual area from results and update dropdown
+                detected = get_detected_area_from_properties(results)
+                if detected:
+                    st.session_state.detected_area = detected
+                    st.session_state.last_search = {"area": detected, "query": query or f"{postcode_district} {street_name}".strip()}
+                else:
+                    st.session_state.last_search = {"area": area, "query": query or f"{postcode_district} {street_name}".strip()}
 
 
 def render_navigation_tabs():
