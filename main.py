@@ -444,3 +444,5 @@ if __name__ == "__main__":
         print(f"   - {p['address']} | Price: £{p.get('current_price', 'N/A')}")
     
     print("\nBackend tests complete!")
+
+    
