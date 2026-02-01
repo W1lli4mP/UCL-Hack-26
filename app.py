@@ -170,11 +170,11 @@ def render_properties_view(last):
 if __name__ == "__main__":
     initialise_session_state()
     
-    # Check if viewing property details
+    # check if viewing property details
     if has_selected_property():
         render_household_details_view(st.session_state.selected_property)
     else:
-        # Main search view
+        # main search view
         area, query, postcode_district, street_name, submitted = render_sidebar_search()
         handle_search_submission(submitted, area, query, postcode_district, street_name)
         
