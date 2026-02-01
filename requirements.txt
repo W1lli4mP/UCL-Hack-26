@@ -1,13 +1,15 @@
-streamlit
-pandas
-numpy
-matplotlib
-scikit-learn
-seaborn
-requests
-<<<<<<< HEAD
-flask
-plotly
-=======
-flask
->>>>>>> 63abc902 (Stuff)
+# Core app
+streamlit>=1.53.1
+requests>=2.31
+plotly>=5.20
+
+# Data + plotting
+numpy>=2.4.2,<3
+pandas>=2.2.3,<3
+matplotlib>=3.8
+seaborn>=0.13
+
+# ML (compiled libs — pin to versions that have good wheels)
+scipy>=1.14.1
+scikit-learn>=1.6
+catboost==1.2.8
