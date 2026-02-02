@@ -138,7 +138,6 @@ Outputs: `validation_results.json` with valid/invalid/error categorisation.
 ## 📝 Notes
 
 - This repository is **private** until the hackathon is over
-- API credentials stored in `config.py` (keep secure)
 - Mock database fallback available for development/testing
 
 ---
