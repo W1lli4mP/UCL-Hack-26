@@ -1,5 +1,7 @@
+from api import API
+
 # important token
-AUTH_TOKEN = API_KEY = "370b0b6f-3f09-4807-b7fe-270a4e5ba2c2"
+AUTH_TOKEN = API_KEY = API
 
 # scansan API
 SEARCH_URL = "https://api.scansan.com/v1/area_codes/search"
